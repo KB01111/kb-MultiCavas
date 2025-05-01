@@ -1,0 +1,59 @@
+services:
+  api:
+    image: api:prod
+    build:
+      dockerfile: ./backend/api/Dockerfile
+    entrypoint: uv run fastapi run api/main.py --root-path=/api --reload
+    env_file:
+      - ./envs/backend.env
+    ports:
+      - 8000:8000
+    volumes:
+      - ./backend/api:/app/api
+      - ./backend/api/.vscode/:/app/.vscode
+      - ./backend/shared_mcp:/app/shared_mcp
+
+  mcp:
+    image: mcp:prod
+    build:
+      dockerfile: ./backend/mcp/Dockerfile
+    environment:
+      - MCP_SERVER_PORT=${MCP_SERVER_PORT}
+    ports:
+      - ${MCP_SERVER_PORT}:${MCP_SERVER_PORT}
+    volumes:
+      - ./backend/mcp:/app/mcp
+      - ./backend/shared_mcp:/app/shared_mcp
+
+  youtube:
+    image: youtube-mcp-server
+    env_file:
+      - ./envs/youtube.env
+    environment:
+      - YOUTUBE_MCP_SERVER_PORT=${MCP_SERVER_PORT}
+    ports:
+      - 5000:${MCP_SERVER_PORT}
+
+  dbhub:
+    image: bytebase/dbhub:0.3.3
+    ports:
+      - 8080:${MCP_SERVER_PORT}
+    command: >
+      --transport sse
+      --port ${MCP_SERVER_PORT}
+      --dsn ${POSTGRES_DSN}
+
+  inspector:
+    image: inspector:prod
+    build:
+      dockerfile: ./inspector/Dockerfile
+    ports:
+      - 6274:6274
+      - 6277:6277
+
+  nginx:
+    image: nginx:1.26.3-alpine
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf

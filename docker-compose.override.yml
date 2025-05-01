@@ -1,0 +1,56 @@
+# docker-compose.override.yml
+# Overrides for development and testing environments
+
+version: '3.8'
+
+services:
+  api:
+    # Override the default command to run tests, or add a new profile for testing
+    # Option 1: Add a test command (can be run manually)
+    # command: ["pytest"]
+
+    # Option 2: Use profiles (Recommended for separating concerns)
+    # Define a 'test' profile for running tests
+    profiles:
+      - donotstart # Prevent API from starting by default with override
+
+    # Environment variables specific to testing (if needed)
+    # environment:
+    #   TESTING_MODE: "true"
+    #   OPENAI_API_KEY: "mock_key_for_testing"
+    #   # Override database connection if needed for integration tests
+    #   # POSTGRES_DSN: "postgresql+psycopg://test_user:test_password@db_test:5432/test_db"
+
+  # Potentially define a separate test runner service
+  # api-tester:
+  #   build:
+  #     context: ./apps/api
+  #     dockerfile: Dockerfile
+  #   profiles:
+  #     - test
+  #   command: ["pytest", "-v"]
+  #   env_file:
+  #     - ./apps/api/.env # Use base env
+  #     # Add test-specific env overrides here
+  #   environment:
+  #     POSTGRES_DSN: "postgresql+psycopg://canvas_user:changeme@db:5432/canvas_db" # Point to regular DB for integration tests
+  #     NEO4J_URI: "neo4j://neo4j:7687"
+  #     NEO4J_USERNAME: "neo4j"
+  #     NEO4J_PASSWORD: "changeme"
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #     neo4j:
+  #       condition: service_healthy
+
+  # web:
+    # Add test command or profile for frontend tests if needed
+    # command: ["npm", "run", "test"]
+    # profiles:
+    #   - donotstart
+
+# Note: For running integration tests that require the actual DB/Neo4j,
+# ensure the POSTGRES_DSN and NEO4J variables point to the running services.
+# The current backend unit tests use an in-memory SQLite DB via conftest.py,
+# which won't be affected by these Docker Compose overrides unless specifically configured.
+

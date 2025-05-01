@@ -1,0 +1,73 @@
+# .github/workflows/ci.yml
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  # Optional: Add a linting job here if linters are configured
+  # lint:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Set up Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: '20'
+  #     - name: Install frontend dependencies
+  #       run: npm install --prefix apps/web
+  #     - name: Run frontend linter
+  #       run: npm run lint --prefix apps/web
+  #     # Add backend linting steps (e.g., using flake8 or ruff)
+
+  test:
+    runs-on: ubuntu-latest
+    # needs: lint # Make test job depend on lint job if added
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Create dummy .env files required by docker-compose.yml
+      # Secrets should be used for actual keys in a real environment
+      - name: Create dummy .env files
+        run: |
+          cp .env.db.example .env.db
+          cp apps/api/.env.example apps/api/.env
+          # Add dummy keys if required by tests, otherwise leave blank
+          echo "OPENAI_API_KEY=dummy_key_for_ci" >> apps/api/.env
+          echo "POSTGRES_DSN=postgresql+psycopg://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@db:5432/${{ secrets.DB_NAME }}" >> apps/api/.env
+          # Ensure frontend env file exists if needed by build
+          cp apps/web/.env.example apps/web/.env
+        env:
+          # Use dummy values or GitHub secrets if needed for build/test
+          DB_USER: canvas_user
+          DB_PASSWORD: changeme
+          DB_NAME: canvas_db
+
+      - name: Build and Run Tests with Docker Compose
+        run: |
+          docker compose --profile test build
+          # Run services defined in the 'test' profile
+          # --exit-code-from will return the exit code of the specified service
+          # Abort build if any test service fails
+          docker compose --profile test up --abort-on-container-exit --exit-code-from backend-tester --exit-code-from frontend-tester
+
+      # Optional: Upload coverage reports if generated
+      # - name: Upload backend coverage report
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: backend-coverage
+      #     path: apps/api/coverage.xml # Adjust path/format as needed
+
+      # - name: Upload frontend coverage report
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: frontend-coverage
+      #     path: apps/web/coverage/lcov.info # Adjust path/format as needed
+
