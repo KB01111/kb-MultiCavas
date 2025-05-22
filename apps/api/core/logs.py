@@ -54,7 +54,7 @@ def setup_logging(log_level: int = LOG_LEVEL, app_name: str = "api"):
     formatter = CustomJsonFormatter(
         fmt="%(asctime)s %(levelname)s %(name)s %(message)s",
         rename_fields={"levelname": "level", "asctime": "timestamp"},
-        datefmt="%Y-%m-%dT%H:%M:%S.%fZ" # ISO 8601 format
+        datefmt="%Y-%m-%dT%H:%M:%S.%f" # ISO 8601 format (Z will be added by formatter)
     )
     stream_handler.setFormatter(formatter)
     logger.addHandler(stream_handler)
