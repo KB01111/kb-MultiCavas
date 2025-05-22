@@ -16,7 +16,6 @@ _allowed_log_levels = {
 LOG_LEVEL = _allowed_log_levels.get(_log_level_str, logging.INFO)
 
 class CustomJsonFormatter(jsonlogger.JsonFormatter):
-class CustomJsonFormatter(jsonlogger.JsonFormatter):
     def add_fields(  # noqa: ANN001
         self,
         log_record: dict,
