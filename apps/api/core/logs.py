@@ -24,8 +24,7 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
         message_dict: dict,
     ) -> None:
         super().add_fields(log_record, record, message_dict)
-        if not log_record.get('timestamp'):
-            log_record['timestamp'] = record.created
+        # timestamp is provided via rename_fields mapping from record.asctime
         if log_record.get('level'):
             log_record['level'] = log_record['level'].upper()
         else:
