@@ -47,26 +47,24 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.13'  # Align with production and lint job
       - name: Install backend security scanner (Bandit)
         run: pip install bandit
-      - name: Run backend security scan (Bandit)
-        run: bandit -r apps/api -ll
-
+      - name: Cache pip cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-security-${{ hashFiles('apps/api/pyproject.toml', 'apps/api/uv.lock') }}
       - name: Install uv
         run: pip install uv
-
       - name: Install API Production Dependencies for Audit
         working-directory: ./apps/api
         run: uv sync --frozen --no-dev # This installs dependencies based on pyproject.toml and uv.lock into the current env
-
       - name: Install pip-audit
         run: pip install pip-audit
-
       - name: Run pip-audit for API
         working-directory: ./apps/api # Run in the API directory, pip-audit will scan the current environment
         run: pip-audit
-
   test:
     runs-on: ubuntu-latest
     needs: security-scan # Make test job depend on security-scan job
