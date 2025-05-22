@@ -27,7 +27,7 @@ This project provides a comprehensive platform for building, testing, and managi
 
 ## Getting Started
 
-Detailed instructions for setting up the development environment, running the application, and executing tests can befound in the [DEPLOYMENT.md](./DEPLOYMENT.md) file.
+Detailed instructions for setting up the development environment, running the application, and executing tests can be found in the [DEPLOYMENT.md](./DEPLOYMENT.md) file.
 
 **Quick Start:**
 
