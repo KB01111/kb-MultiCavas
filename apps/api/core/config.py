@@ -22,6 +22,14 @@ class Settings(BaseSettings):
     neo4j_username: str = "neo4j"
     neo4j_password: str = ""  # Will be loaded from environment variables
 
+    # Neo4j environment variables
+    model_config = SettingsConfigDict(
+        env_file=".env.db",
+        env_prefix="NEO4J_",
+        env_ignore_empty=True,
+        extra="ignore",
+    )
+
     @computed_field
     @property
     def orm_conn_str(self) -> str:
