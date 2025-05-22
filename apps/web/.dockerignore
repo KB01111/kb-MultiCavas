@@ -1,0 +1,53 @@
+# Git files
+.git
+.gitignore
+
+# Node.js modules
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Next.js build output (intermediate, final output will be copied from standalone)
+.next/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+
+# Test files and configurations (if not needed in image)
+e2e/
+playwright.config.ts
+jest.config.js
+jest.setup.js
+*.spec.ts
+*.test.ts
+*.spec.js
+*.test.js
+
+# Editor and OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Documentation and configuration files not needed at runtime
+README.md
+components.json
+# tsconfig.json and next.config.ts might be needed by the build stage,
+# but not necessarily in the final runtime image if using standalone.
+# However, it's safer to include them in the build context and let the Dockerfile stages handle it.
+
+# PNPM files (if any specific ones should be ignored beyond node_modules)
+# pnpm-lock.yaml is needed, so don't ignore it.
+
+# Files from root that might be in context if Docker build is run from root
+# (adjust if build context is apps/web itself)
+# ../.git
+# ../node_modules
+# etc. (assuming build context is apps/web)

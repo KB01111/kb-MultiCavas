@@ -27,8 +27,10 @@ services:
       - "7687:7687"
     volumes:
       - neo4j_data:/data
+    env_file:
+      - .env.db
     environment:
-      NEO4J_AUTH: neo4j/changeme # Default user/password, change in production!
+      NEO4J_AUTH: ${NEO4J_USER}/${NEO4J_PASSWORD} # Default user/password, change in production!
     healthcheck:
       test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:7474 || exit 1"]
       interval: 10s
@@ -82,7 +84,7 @@ services:
     build:
       context: ./apps/api
       dockerfile: Dockerfile
-    command: ["pytest", "-v", "--cov=.", "--cov-report=term-missing"]
+    command: ["pytest", "-v", "--cov=.", "--cov-report=xml:coverage.xml"]
     env_file:
       - ./apps/api/.env # Use base env, ensure API keys are set or mocked
       - .env.db
@@ -92,8 +94,8 @@ services:
       # Integration tests (like test_graph_service) might need these.
       POSTGRES_DSN: "postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}"
       NEO4J_URI: "neo4j://neo4j:7687"
-      NEO4J_USERNAME: "neo4j"
-      NEO4J_PASSWORD: "changeme"
+      NEO4J_USERNAME: "${NEO4J_USER}"
+      NEO4J_PASSWORD: "${NEO4J_PASSWORD}"
       # Indicate testing mode if needed by the application logic
       # TESTING_MODE: "true"
     depends_on:

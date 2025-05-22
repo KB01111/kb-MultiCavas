@@ -17,6 +17,11 @@ class Settings(BaseSettings):
         "postgresql://postgres:password@example.supabase.com:6543/postgres"
     )
 
+    # Neo4j Connection Details
+    neo4j_uri: str = "neo4j://neo4j:7687"  # Default for local Docker setup
+    neo4j_username: str = "neo4j"
+    neo4j_password: str = "changeme"  # IMPORTANT: Override in production
+
     @computed_field
     @property
     def orm_conn_str(self) -> str:
