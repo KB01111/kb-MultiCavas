@@ -13,6 +13,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Cache Node modules
+        uses: actions/cache@v3
+        with:
+          path: apps/web/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('apps/web/package-lock.json') }}
+      - name: Cache pip cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('apps/api/pyproject.toml', 'apps/api/uv.lock') }}
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
