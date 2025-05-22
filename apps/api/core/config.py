@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     # Neo4j Connection Details
     neo4j_uri: str = "neo4j://neo4j:7687"  # Default for local Docker setup
     neo4j_username: str = "neo4j"
-    neo4j_password: str = "changeme"  # IMPORTANT: Override in production
+    neo4j_password: str = ""  # Will be loaded from environment variables
 
     @computed_field
     @property
