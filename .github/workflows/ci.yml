@@ -60,6 +60,10 @@ jobs:
           python-version: '3.13'  # Align with production and lint job
       - name: Install backend security scanner (Bandit)
         run: pip install bandit
+      - name: Install backend security scanner (Bandit)
+        run: pip install bandit
+      - name: Run backend security scan (Bandit)
+        run: bandit -r apps/api -ll
       - name: Cache pip cache
         uses: actions/cache@v3
         with:
