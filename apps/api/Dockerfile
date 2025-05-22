@@ -56,4 +56,4 @@ EXPOSE 8000
 # Command to run the application
 # Using uvicorn directly, assuming it's installed as a dependency in pyproject.toml
 # The --root-path=/api is kept from the original Dockerfile's entrypoint.
-CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000", "--root-path=/api"]
+CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000", "--root-path", "/api"]
