@@ -1,0 +1,42 @@
+# General Python exclusions
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE and editor specific
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Testing related
+.pytest_cache/
+tests/
+*.cover
+coverage.xml
+htmlcov/
+.tox/
+
+# Environment files (should be passed at runtime, not built into image)
+.env
+.env.*
+*.env
+
+# Git specific
+.git
+.gitignore
+.gitattributes
+
+# Other build artifacts or local files
+dist/
+build/
+*.egg-info/
+*.log
+local_settings.py
+docker-compose.yml
+docker-compose.*.yml
+Dockerfile # Usually not needed inside the context if building from parent dir
+README.md # Or other docs unless specifically needed in the image
+
+# Specific to this project if known
+# e.g., notebooks, data files not needed for runtime, etc.

@@ -2,6 +2,8 @@ import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+
+from api.core.logs import setup_logging # Import the setup_logging function
 from fastapi.middleware.cors import CORSMiddleware
 # from langfuse.fastapi import LangfuseMiddleware # Uncomment when ready
 
@@ -21,12 +23,15 @@ from api.routers import mcp # MCP router
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup logic: Initialize DB connections, etc.
-    print("Starting up AI Agent Canvas Backend...")
+    setup_logging() # Call the logging setup function
+    # Original print statements will now go through the configured logger if they use logging.info
+    # For example, replace print() with logging.getLogger("api").info()
+    logging.getLogger("api").info("Starting up AI Agent Canvas Backend...")
     # langfuse_middleware.configure(app)
     # TODO: Initialize database connection pool if needed
     yield
     # Shutdown logic: Close connections, etc.
-    print("Shutting down AI Agent Canvas Backend...")
+    logging.getLogger("api").info("Shutting down AI Agent Canvas Backend...")
 
 app = FastAPI(
     title="AI Agent Canvas Backend",
@@ -52,6 +57,11 @@ app.add_middleware(
 
 # Add Langfuse Middleware (uncomment when configured)
 # app.add_middleware(LangfuseMiddleware)
+
+import logging
+
+# Include Core CRUD Routers
+-import logging # Add this import for the getLogger calls in lifespan
 
 # Include Core CRUD Routers
 app.include_router(agents.router, prefix="/v1", tags=["Agents"])

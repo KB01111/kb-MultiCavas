@@ -9,23 +9,79 @@ on:
 
 jobs:
   # Optional: Add a linting job here if linters are configured
-  # lint:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - name: Set up Node.js
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: '20'
-  #     - name: Install frontend dependencies
-  #       run: npm install --prefix apps/web
-  #     - name: Run frontend linter
-  #       run: npm run lint --prefix apps/web
-  #     # Add backend linting steps (e.g., using flake8 or ruff)
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache Node modules
+        uses: actions/cache@v3
+        with:
+          path: apps/web/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('apps/web/package-lock.json') }}
+      - name: Cache pip cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('apps/api/pyproject.toml', 'apps/api/uv.lock') }}
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install frontend dependencies
+        run: npm install --prefix apps/web
+      - name: Run frontend linter
+        run: npm run lint --prefix apps/web
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13' # Align with production runtime
+      - name: Install backend linter (Ruff)
+        run: pip install ruff
+      - name: Run backend linter
+        run: ruff check apps/api
 
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install frontend dependencies
+        run: npm install --prefix apps/web
+      - name: Run frontend security scan (npm audit)
+        run: npm audit --audit-level=high --prefix apps/web
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'  # Align with production and lint job
+      - name: Install backend security scanner (Bandit)
+        run: pip install bandit
+      - name: Install backend security scanner (Bandit)
+        run: pip install bandit
+      - name: Run backend security scan (Bandit)
+        run: bandit -r apps/api -ll
+      - name: Cache pip cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-security-${{ hashFiles('apps/api/pyproject.toml', 'apps/api/uv.lock') }}
+      - name: Install uv
+        run: pip install uv
+      - name: Install API Production Dependencies for Audit
+        working-directory: ./apps/api
+        run: uv sync --frozen --no-dev # This installs dependencies based on pyproject.toml and uv.lock into the current env
+      - name: Install pip-audit
+        run: pip install pip-audit
+      - name: Run pip-audit for API
+        working-directory: ./apps/api # Run in the API directory, pip-audit will scan the current environment
+        run: pip-audit
   test:
     runs-on: ubuntu-latest
-    # needs: lint # Make test job depend on lint job if added
+    needs: security-scan # Make test job depend on security-scan job
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -59,15 +115,17 @@ jobs:
           docker compose --profile test up --abort-on-container-exit --exit-code-from backend-tester --exit-code-from frontend-tester
 
       # Optional: Upload coverage reports if generated
-      # - name: Upload backend coverage report
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: backend-coverage
-      #     path: apps/api/coverage.xml # Adjust path/format as needed
+      - name: Upload backend coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-coverage
+          path: apps/api/coverage.xml # Adjust path/format as needed
 
-      # - name: Upload frontend coverage report
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: frontend-coverage
-      #     path: apps/web/coverage/lcov.info # Adjust path/format as needed
+      - name: Upload frontend coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frontend-coverage
+          path: apps/web/coverage/lcov.info # Adjust path/format as needed
 

@@ -24,7 +24,8 @@ dependencies = [
     "sqlmodel>=0.0.24",
     "sse-starlette==2.1.3",
     "mem0==0.2.1", # Added mem0 dependency
-    "python-dotenv==1.0.1" # Added dotenv for graph_service
+    "python-dotenv==1.0.1", # Added dotenv for graph_service
+    "python-json-logger==2.0.7" # For structured JSON logging
 ]
 
 [project.optional-dependencies]

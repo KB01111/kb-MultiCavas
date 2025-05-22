@@ -26,18 +26,23 @@ The application uses environment variables for configuration. Example files are 
     make env-db
     # or manually: cp .env.db.example .env.db
     ```
-    Review `.env.db` and change `POSTGRES_PASSWORD` if desired (ensure it matches API config if changed).
+    Review `.env.db` and change `POSTGRES_PASSWORD` if desired.
+    *   This file also configures the Neo4j service itself. Ensure `NEO4J_USER` and `NEO4J_PASSWORD` are set as desired for the Neo4j database authentication. These values are used by the `neo4j` service in `docker-compose.yml`.
 
 *   **Backend API Configuration (`apps/api/.env`):**
-    Copy the example file:
+    This file configures the backend API application. It should be created from `.env.backend.example` located in the root of the repository.
     ```bash
-    make env-api
-    # or manually: cp apps/api/.env.example apps/api/.env
+    # The 'make env-api' target might be outdated if apps/api/.env.example doesn't exist.
+    # Manually copy from the root:
+    cp .env.backend.example apps/api/.env
     ```
     Edit `apps/api/.env` and provide:
-    *   `OPENAI_API_KEY`: Your OpenAI API key.
-    *   `POSTGRES_DSN`: The connection string for the PostgreSQL database. The default value usually works with the Docker Compose setup: `postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}`. Ensure the credentials match `.env.db`.
-    *   Neo4j variables (`NEO4J_URI`, `NEO4J_USERNAME`, `NEO4J_PASSWORD`) usually don't need changes for the default Docker setup unless you modified the Neo4j service configuration.
+    *   `OPENAI_API_KEY`: Your OpenAI API key (required for AI functionalities).
+    *   `POSTGRES_DSN`: The connection string for the PostgreSQL database, e.g., `postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}`. Ensure the user, password, and DB name match those in `.env.db`.
+    *   `NEO4J_URI`: The URI for the Neo4j instance (e.g., `neo4j://neo4j:7687`).
+    *   `NEO4J_USERNAME`: The username for the API to connect to Neo4j (should match `NEO4J_USER` in `.env.db`).
+    *   `NEO4J_PASSWORD`: The password for the API to connect to Neo4j (should match `NEO4J_PASSWORD` in `.env.db`).
+    *   `LOG_LEVEL`: Controls the verbosity of backend logs. Default: `INFO`. Options: `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`.
 
 *   **Frontend Configuration (`apps/web/.env`):**
     Copy the example file:
@@ -84,6 +89,13 @@ The `docker-compose.yml` file includes a `test` profile with services configured
     # Add dummy keys to apps/api/.env if needed by tests
     # echo "OPENAI_API_KEY=dummy_key_for_testing" >> apps/api/.env
     ```
+    The CI pipeline configured in `.github/workflows/ci.yml` automatically performs a comprehensive suite of checks on each push and pull request to the main branch. This includes:
+    *   Linting for both frontend (ESLint) and backend (Ruff) code.
+    *   Security scanning:
+        *   Static Application Security Testing (SAST) for the backend using Bandit.
+        *   Dependency vulnerability audits for frontend (npm audit) and backend (pip-audit).
+    *   Unit and integration tests for both backend (Pytest) and frontend (Jest).
+    *   Collection of code coverage reports.
 
 2.  **Run tests using the `test` profile:**
     ```bash
