@@ -58,7 +58,18 @@ app.add_middleware(
 # Add Langfuse Middleware (uncomment when configured)
 # app.add_middleware(LangfuseMiddleware)
 
-import logging # Add this import for the getLogger calls in lifespan
+--- a/apps/api/main.py
++++ b/apps/api/main.py
+@@ -1,7 +1,8 @@
+ import os
+ from contextlib import asynccontextmanager
++import logging
+
+ from fastapi import FastAPI
+
+ from api.core.logs import setup_logging # Import the setup_logging function
+@@ -61 +61 @@
+-import logging # Add this import for the getLogger calls in lifespan
 
 # Include Core CRUD Routers
 app.include_router(agents.router, prefix="/v1", tags=["Agents"])
