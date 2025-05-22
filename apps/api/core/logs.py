@@ -16,20 +16,25 @@ _allowed_log_levels = {
 LOG_LEVEL = _allowed_log_levels.get(_log_level_str, logging.INFO)
 
 class CustomJsonFormatter(jsonlogger.JsonFormatter):
-    def add_fields(self, log_record, record, message_dict):
-        super(CustomJsonFormatter, self).add_fields(log_record, record, message_dict)
+class CustomJsonFormatter(jsonlogger.JsonFormatter):
+    def add_fields(  # noqa: ANN001
+        self,
+        log_record: dict,
+        record: logging.LogRecord,
+        message_dict: dict,
+    ) -> None:
+        super().add_fields(log_record, record, message_dict)
         if not log_record.get('timestamp'):
             log_record['timestamp'] = record.created
         if log_record.get('level'):
             log_record['level'] = log_record['level'].upper()
         else:
             log_record['level'] = record.levelname.upper()
-        
+
         log_record['logger_name'] = record.name
         # Remove default "message" if it's empty and there's a "msg" field from structlog style
         if not log_record.get('message') and log_record.get('msg'):
             log_record['message'] = log_record.pop('msg')
-
 
 def setup_logging(log_level: int = LOG_LEVEL, app_name: str = "api"):
     """
