@@ -19,7 +19,7 @@ dependencies = [
     "prometheus-client==0.21.1",
     "psycopg[binary]==3.2.3",
     "pydantic-settings==2.6.0",
-    "pypdf==5.1.0",
+    "pypdf==6.0.0",
     "rich==13.9.4",
     "sqlmodel>=0.0.24",
     "sse-starlette==2.1.3",
